@@ -2,9 +2,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, ShieldCheck, ClipboardList, UploadCloud, LayoutDashboard } from 'lucide-react';
+import { Home, ShieldCheck, ClipboardList, UploadCloud } from 'lucide-react';
 
-const Sidebar = () => {
+export default function Sidebar() {
   const pathname = usePathname();
 
   const menus = [
@@ -15,43 +15,44 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 sticky top-0 h-screen">
-      <div className="p-6 flex items-center gap-3">
-        <div className="bg-blue-600 p-2 rounded-xl">
-          <LayoutDashboard className="text-white w-6 h-6" />
-        </div>
-        <span className="text-xl font-black text-gray-900 tracking-tighter">PIRU APP</span>
+    <aside style={{
+      width: '260px',
+      backgroundColor: '#1a202c', // Hitam Biru Profesional
+      color: 'white',
+      height: '100vh',
+      position: 'sticky',
+      top: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      borderRight: '1px solid #2d3748'
+    }}>
+      <div style={{ padding: '25px', fontSize: '24px', fontWeight: '900', borderBottom: '1px solid #2d3748', color: '#63b3ed' }}>
+        PIRU APP
       </div>
 
-      <nav className="flex-1 px-4 space-y-2 mt-4">
+      <nav style={{ flex: 1, padding: '20px 0' }}>
         {menus.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
           return (
-            <Link 
-              key={item.name} 
-              href={item.href} 
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${
-                isActive 
-                ? 'bg-blue-50 text-blue-600' 
-                : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
-              }`}
-            >
-              <Icon className="w-5 h-5" />
-              <span>{item.name}</span>
+            <Link key={item.name} href={item.href} style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '15px',
+              padding: '15px 25px',
+              textDecoration: 'none',
+              color: isActive ? '#fff' : '#a0aec0',
+              backgroundColor: isActive ? '#2d3748' : 'transparent',
+              fontSize: '15px',
+              fontWeight: 'bold',
+              transition: '0.3s'
+            }}>
+              <Icon size={20} />
+              {item.name}
             </Link>
           );
         })}
       </nav>
-
-      <div className="p-4 border-t border-gray-100">
-        <div className="bg-gray-50 p-4 rounded-2xl">
-          <p className="text-xs font-bold text-gray-400 uppercase">User Role</p>
-          <p className="text-sm font-black text-gray-800">Super Admin</p>
-        </div>
-      </div>
     </aside>
   );
-};
-
-export default Sidebar;
+}
