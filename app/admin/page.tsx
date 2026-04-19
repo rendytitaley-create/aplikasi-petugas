@@ -2,21 +2,36 @@
 import React, { useState } from "react";
 import { db } from "../../lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
-import { Plus, Save, FileSpreadsheet, Loader2 } from "lucide-react";
+import { Plus, Save, FileSpreadsheet, Loader2, Clock } from "lucide-react";
 
 export default function AdminPage() {
-  // State untuk form
   const [role, setRole] = useState("CS");
   const [hari, setHari] = useState("Senin");
-  const [jam, setJam] = useState("");
+  const [waktuMulai, setWaktuMulai] = useState("07:00");
+  const [durasi, setDurasi] = useState("60");
   const [tugas, setTugas] = useState("");
   const [loading, setLoading] = useState(false);
   const [pesan, setPesan] = useState("");
 
+  // Daftar jam untuk dropdown waktu mulai (06:00 - 22:00)
+  const daftarJam = Array.from({ length: 33 }, (_, i) => {
+    const h = Math.floor(i / 2) + 6;
+    const m = i % 2 === 0 ? "00" : "30";
+    return `${h.toString().padStart(2, '0')}:${m}`;
+  });
+
+  const hitungRentangJam = () => {
+    const [h, m] = waktuMulai.split(":").map(Number);
+    const totalMenit = h * 60 + m + parseInt(durasi);
+    const hSelesai = Math.floor(totalMenit / 60);
+    const mSelesai = totalMenit % 60;
+    return `${waktuMulai} - ${hSelesai.toString().padStart(2, '0')}:${mSelesai.toString().padStart(2, '0')}`;
+  };
+
   const simpanData = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!jam || !tugas) {
-      alert("Harap isi jam dan deskripsi tugas!");
+    if (!tugas) {
+      alert("Harap isi deskripsi tugas!");
       return;
     }
 
@@ -25,57 +40,55 @@ export default function AdminPage() {
       await addDoc(collection(db, "jadwal_template"), {
         role,
         hari,
-        jam,
+        jam: hitungRentangJam(),
         tugas,
       });
-      setPesan("✅ Data berhasil disimpan!");
-      setJam("");
+      setPesan("✅ Berhasil Disimpan!");
       setTugas("");
       setTimeout(() => setPesan(""), 3000);
     } catch (error) {
-      console.error("Error simpan data:", error);
-      alert("Gagal menyimpan data.");
+      console.error(error);
+      alert("Gagal menyimpan.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-5xl mx-auto text-gray-900">
       <header className="mb-8">
-        <h1 className="text-3xl font-black text-gray-900">Admin Panel</h1>
-        <p className="text-gray-500 font-medium">Manajemen Master Data Pekerjaan</p>
+        <h1 className="text-3xl font-black text-black">Admin Panel</h1>
+        <p className="text-gray-700 font-bold">Manajemen Master Data Pekerjaan</p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Kolom Kiri: Form Input Manual */}
-        <div className="lg:col-span-2 space-y-6">
-          <form onSubmit={simpanData} className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-            <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-              <Plus className="text-blue-600" /> Tambah Detail Pekerjaan
+        <div className="lg:col-span-2">
+          <form onSubmit={simpanData} className="bg-white p-8 rounded-3xl shadow-md border border-gray-300">
+            <h2 className="text-xl font-bold text-black mb-6 flex items-center gap-2 border-b pb-4">
+              <Plus className="text-blue-700" strokeWidth={3} /> Tambah Jadwal Baru
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Pilih Role */}
+              {/* Petugas */}
               <div>
-                <label className="block text-xs font-black text-gray-400 uppercase mb-2">Pilih Petugas</label>
+                <label className="block text-sm font-black text-gray-800 uppercase mb-2 tracking-wide">Petugas</label>
                 <select 
                   value={role} 
                   onChange={(e) => setRole(e.target.value)}
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full p-3 bg-white border-2 border-gray-400 rounded-xl font-bold text-black focus:border-blue-600 outline-none"
                 >
                   <option value="CS">Cleaning Service (CS)</option>
                   <option value="SATPAM">Satpam / Security</option>
                 </select>
               </div>
 
-              {/* Pilih Hari */}
+              {/* Hari */}
               <div>
-                <label className="block text-xs font-black text-gray-400 uppercase mb-2">Pilih Hari</label>
+                <label className="block text-sm font-black text-gray-800 uppercase mb-2 tracking-wide">Hari Kerja</label>
                 <select 
                   value={hari} 
                   onChange={(e) => setHari(e.target.value)}
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full p-3 bg-white border-2 border-gray-400 rounded-xl font-bold text-black focus:border-blue-600 outline-none"
                 >
                   {["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"].map(h => (
                     <option key={h} value={h}>{h}</option>
@@ -83,64 +96,73 @@ export default function AdminPage() {
                 </select>
               </div>
 
-              {/* Input Jam */}
-              <div className="md:col-span-2">
-                <label className="block text-xs font-black text-gray-400 uppercase mb-2">Rentang Jam (Contoh: 08:00 - 09:00)</label>
-                <input 
-                  type="text" 
-                  value={jam}
-                  onChange={(e) => setJam(e.target.value)}
-                  placeholder="Masukkan jam kerja..."
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold focus:ring-2 focus:ring-blue-500 outline-none"
-                />
+              {/* Waktu Mulai */}
+              <div>
+                <label className="block text-sm font-black text-gray-800 uppercase mb-2 tracking-wide">Jam Mulai</label>
+                <select 
+                  value={waktuMulai} 
+                  onChange={(e) => setWaktuMulai(e.target.value)}
+                  className="w-full p-3 bg-white border-2 border-gray-400 rounded-xl font-bold text-black focus:border-blue-600 outline-none"
+                >
+                  {daftarJam.map(j => <option key={j} value={j}>{j}</option>)}
+                </select>
               </div>
 
-              {/* Input Tugas */}
+              {/* Durasi */}
+              <div>
+                <label className="block text-sm font-black text-gray-800 uppercase mb-2 tracking-wide">Durasi Kerja</label>
+                <select 
+                  value={durasi} 
+                  onChange={(e) => setDurasi(e.target.value)}
+                  className="w-full p-3 bg-white border-2 border-gray-400 rounded-xl font-bold text-black focus:border-blue-600 outline-none"
+                >
+                  <option value="30">30 Menit</option>
+                  <option value="45">45 Menit</option>
+                  <option value="60">1 Jam (60 Menit)</option>
+                  <option value="120">2 Jam</option>
+                </select>
+              </div>
+
+              {/* Preview Rentang */}
+              <div className="md:col-span-2 bg-blue-50 p-4 rounded-xl border-2 border-blue-200 flex items-center justify-between">
+                <span className="text-sm font-bold text-blue-800">Hasil Rentang Jam:</span>
+                <span className="text-lg font-black text-blue-900">{hitungRentangJam()}</span>
+              </div>
+
+              {/* Deskripsi */}
               <div className="md:col-span-2">
-                <label className="block text-xs font-black text-gray-400 uppercase mb-2">Deskripsi Pekerjaan</label>
+                <label className="block text-sm font-black text-gray-800 uppercase mb-2 tracking-wide">Detail Pekerjaan</label>
                 <textarea 
                   value={tugas}
                   onChange={(e) => setTugas(e.target.value)}
                   rows={3}
-                  placeholder="Tuliskan detail pekerjaan di sini..."
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="Contoh: Pembersihan koridor utama..."
+                  className="w-full p-3 bg-white border-2 border-gray-400 rounded-xl font-bold text-black focus:border-blue-600 outline-none placeholder:text-gray-400"
                 ></textarea>
               </div>
             </div>
 
             <button 
               disabled={loading}
-              className="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl shadow-lg shadow-blue-100 flex items-center justify-center gap-2 transition-all disabled:bg-gray-400"
+              className="w-full mt-8 bg-black hover:bg-gray-800 text-white font-black py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2 transition-all disabled:bg-gray-400"
             >
               {loading ? <Loader2 className="animate-spin" /> : <Save className="w-5 h-5" />}
-              {loading ? "Menyimpan..." : "Simpan Jadwal"}
+              {loading ? "MEMPROSES..." : "SIMPAN JADWAL"}
             </button>
 
-            {pesan && <p className="mt-4 text-center text-emerald-600 font-bold animate-bounce">{pesan}</p>}
+            {pesan && <p className="mt-4 text-center text-emerald-700 font-black text-lg">{pesan}</p>}
           </form>
         </div>
 
-        {/* Kolom Kanan: Info & Import */}
         <div className="space-y-6">
-          <div className="bg-emerald-600 p-6 rounded-3xl text-white shadow-xl shadow-emerald-100">
+          <div className="bg-gray-900 p-6 rounded-3xl text-white shadow-xl border-b-4 border-blue-600">
             <div className="flex items-center gap-2 mb-4">
-              <FileSpreadsheet className="w-6 h-6" />
-              <h3 className="font-bold">Opsi Cepat</h3>
+              <Clock className="w-6 h-6 text-blue-400" />
+              <h3 className="font-bold text-lg">Informasi Sistem</h3>
             </div>
-            <p className="text-xs opacity-90 leading-relaxed mb-6">
-              Gunakan fitur Import Excel jika Anda memiliki ratusan data jadwal untuk dimasukkan sekaligus.
+            <p className="text-sm font-medium leading-relaxed opacity-90">
+              Warna teks kini telah dipertegas (hitam pekat) dan input memiliki border yang lebih kontras agar mudah dibaca di berbagai perangkat.
             </p>
-            <button className="w-full bg-emerald-500 hover:bg-emerald-400 py-3 rounded-xl border border-emerald-400 font-bold text-sm transition-all">
-              Upload Excel (.xlsx)
-            </button>
-          </div>
-          
-          <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-            <h3 className="font-bold text-gray-800 mb-2">Tips Admin</h3>
-            <ul className="text-xs text-gray-500 space-y-2 list-disc pl-4 leading-relaxed">
-              <li>Pastikan format jam seragam (misal: 07:00).</li>
-              <li>Data yang disimpan akan langsung muncul di menu E-List petugas sesuai harinya.</li>
-            </ul>
           </div>
         </div>
       </div>
