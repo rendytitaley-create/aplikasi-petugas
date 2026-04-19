@@ -2,57 +2,47 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, ShieldCheck, ClipboardList, UploadCloud } from 'lucide-react';
+import { LayoutDashboard, ShieldCheck, ClipboardList, Settings } from 'lucide-react';
 
 export default function Sidebar() {
   const pathname = usePathname();
 
   const menus = [
-    { name: 'Dashboard', href: '/', icon: Home },
+    { name: 'Dashboard', href: '/', icon: LayoutDashboard },
     { name: 'Jadwal & Aplose', href: '/jadwal', icon: ShieldCheck },
     { name: 'E-List Pekerjaan', href: '/elist', icon: ClipboardList },
-    { name: 'Admin Panel', href: '/admin', icon: UploadCloud },
+    { name: 'Admin Panel', href: '/admin', icon: Settings },
   ];
 
   return (
-    <aside style={{
-      width: '260px',
-      backgroundColor: '#1a202c', // Hitam Biru Profesional
-      color: 'white',
-      height: '100vh',
-      position: 'sticky',
-      top: 0,
-      display: 'flex',
-      flexDirection: 'column',
-      borderRight: '1px solid #2d3748'
-    }}>
-      <div style={{ padding: '25px', fontSize: '24px', fontWeight: '900', borderBottom: '1px solid #2d3748', color: '#63b3ed' }}>
-        PIRU APP
+    <aside className="w-64 bg-slate-900 h-screen sticky top-0 text-white flex flex-col border-r border-slate-800">
+      <div className="p-8 border-b border-slate-800">
+        <h1 className="text-2xl font-black tracking-tighter text-blue-400 italic">PIRU APP</h1>
       </div>
 
-      <nav style={{ flex: 1, padding: '20px 0' }}>
+      <nav className="flex-1 py-6 px-4 space-y-2">
         {menus.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
           return (
-            <Link key={item.name} href={item.href} style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '15px',
-              padding: '15px 25px',
-              textDecoration: 'none',
-              color: isActive ? '#fff' : '#a0aec0',
-              backgroundColor: isActive ? '#2d3748' : 'transparent',
-              fontSize: '15px',
-              fontWeight: 'bold',
-              transition: '0.3s'
-            }}>
+            <Link 
+              key={item.name} 
+              href={item.href} 
+              className={`flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition-all ${
+                isActive ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+              }`}
+            >
               <Icon size={20} />
-              {item.name}
+              <span className="text-sm">{item.name}</span>
             </Link>
           );
         })}
       </nav>
+
+      <div className="p-6 bg-slate-950/50">
+        <p className="text-[10px] font-black text-slate-500 uppercase">Versi Aplikasi</p>
+        <p className="text-xs font-bold text-slate-300">Pro Edition v1.0</p>
+      </div>
     </aside>
   );
 }
