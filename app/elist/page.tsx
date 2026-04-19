@@ -35,7 +35,7 @@ export default function EListPage() {
   }, []);
 
   return (
-    <main className="p-6 max-w-md mx-auto mb-20">
+    <main className="max-w-7xl mx-auto">
       <header className="mb-6 flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-black text-gray-900">E-List Kerja</h1>
