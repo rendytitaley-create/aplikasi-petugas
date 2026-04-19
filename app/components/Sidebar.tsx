@@ -15,9 +15,9 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-slate-900 h-screen sticky top-0 text-white flex flex-col border-r border-slate-800">
+    <aside className="w-64 bg-slate-900 h-screen sticky top-0 text-white flex flex-col border-r border-slate-800 z-50">
       <div className="p-8 border-b border-slate-800">
-        <h1 className="text-2xl font-black tracking-tighter text-blue-400 italic">PIRU APP</h1>
+        <h1 className="text-2xl font-black tracking-tighter text-blue-400">PIRU APP</h1>
       </div>
 
       <nav className="flex-1 py-6 px-4 space-y-2">
@@ -40,8 +40,8 @@ export default function Sidebar() {
       </nav>
 
       <div className="p-6 bg-slate-950/50">
-        <p className="text-[10px] font-black text-slate-500 uppercase">Versi Aplikasi</p>
-        <p className="text-xs font-bold text-slate-300">Pro Edition v1.0</p>
+        <p className="text-[10px] font-black text-slate-500 uppercase">System Status</p>
+        <p className="text-xs font-bold text-emerald-400">Online & Encrypted</p>
       </div>
     </aside>
   );
