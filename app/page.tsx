@@ -3,13 +3,22 @@ import React, { useState, useEffect } from "react";
 import { db } from "../lib/firebase"; 
 import { collection, getDocs, query, where } from "firebase/firestore";
 
+// Menentukan jenis data agar TypeScript tidak error
+interface Tugas {
+  id: string;
+  role?: string;
+  jam?: string;
+  tugas?: string;
+  hari?: string;
+}
+
 export default function Home() {
-  const [tugas, setTugas] = useState([]);
+  // Memberitahu TypeScript bahwa 'tugas' adalah daftar dari objek 'Tugas'
+  const [tugas, setTugas] = useState<Tugas[]>([]);
   const [loading, setLoading] = useState(true);
   const [hariIni, setHariIni] = useState("");
 
   useEffect(() => {
-    // 1. Mengatur Nama Hari dalam Bahasa Indonesia
     const namaHari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
     const hariSekarang = namaHari[new Date().getDay()];
     setHariIni(hariSekarang);
@@ -17,7 +26,6 @@ export default function Home() {
     const ambilData = async () => {
       try {
         setLoading(true);
-        // 2. Mengambil data dari Firebase berdasarkan hari ini
         const q = query(
           collection(db, "jadwal_template"), 
           where("hari", "==", hariSekarang)
@@ -27,7 +35,7 @@ export default function Home() {
         const dataSelesai = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
-        }));
+        })) as Tugas[]; // Memberitahu ini adalah data Tugas
         
         setTugas(dataSelesai);
       } catch (error) {
@@ -44,7 +52,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50 p-4 pb-10">
-      {/* Header Aplikasi */}
       <header className="max-w-md mx-auto mb-8 mt-4">
         <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">
           Log Kerja Petugas
@@ -64,15 +71,12 @@ export default function Home() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="mt-4 text-sm text-gray-500">Menghubungkan ke database...</p>
+            <p className="mt-4 text-sm text-gray-500">Memuat data...</p>
           </div>
         ) : tugas.length === 0 ? (
           <div className="bg-white p-10 rounded-3xl text-center shadow-sm border border-gray-200">
             <div className="text-4xl mb-4">🗓️</div>
             <p className="text-gray-500 font-medium">Tidak ada jadwal untuk hari {hariIni}.</p>
-            <p className="text-xs text-gray-400 mt-2 italic">
-              Tips: Cek penulisan hari di Firebase (Contoh: "Minggu")
-            </p>
           </div>
         ) : (
           tugas.map((item) => (
