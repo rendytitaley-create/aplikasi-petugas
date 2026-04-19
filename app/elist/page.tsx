@@ -1,64 +1,79 @@
 "use client";
-import React, { useState } from "react";
-import { Shield, Camera, Clock, User } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { db } from "../../lib/firebase"; 
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { ClipboardList, Camera, CheckCircle2 } from "lucide-react";
 
-export default function JadwalSatpam() {
-  const [loading, setLoading] = useState(false);
+interface Tugas {
+  id: string;
+  role?: string;
+  jam?: string;
+  tugas?: string;
+  hari?: string;
+}
+
+export default function EListPage() {
+  const [tugas, setTugas] = useState<Tugas[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [hariIni, setHariIni] = useState("");
+
+  useEffect(() => {
+    const namaHari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+    const hariSekarang = namaHari[new Date().getDay()];
+    setHariIni(hariSekarang);
+
+    const ambilData = async () => {
+      try {
+        setLoading(true);
+        const q = query(collection(db, "jadwal_template"), where("hari", "==", hariSekarang));
+        const querySnapshot = await getDocs(q);
+        const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Tugas[];
+        setTugas(data);
+      } catch (e) { console.error(e); } finally { setLoading(false); }
+    };
+    ambilData();
+  }, []);
 
   return (
-    <main className="p-6 max-w-2xl mx-auto mb-20">
-      <header className="mb-8 text-center md:text-left">
-        <h1 className="text-3xl font-black text-gray-900 tracking-tight">Jadwal & Aplose</h1>
-        <p className="text-gray-500 font-medium">Manajemen Ganti Jaga Satpam</p>
+    <main className="p-6 max-w-md mx-auto mb-20">
+      <header className="mb-6 flex justify-between items-end">
+        <div>
+          <h1 className="text-2xl font-black text-gray-900">E-List Kerja</h1>
+          <p className="text-sm font-bold text-emerald-600 uppercase tracking-widest">{hariIni}</p>
+        </div>
+        <ClipboardList className="text-gray-200 w-10 h-10" />
       </header>
 
-      {/* Kartu Status Jaga Saat Ini */}
-      <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 mb-6">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="bg-orange-100 p-4 rounded-2xl">
-            <Shield className="w-8 h-8 text-orange-600" />
+      <div className="space-y-4">
+        {loading ? (
+          <div className="animate-pulse space-y-4">
+            {[1,2,3].map(i => <div key={i} className="h-32 bg-gray-200 rounded-3xl" />)}
           </div>
-          <div>
-            <h2 className="text-xl font-bold text-gray-800">Shift Pagi</h2>
-            <p className="text-sm text-gray-500 font-medium">08:00 - 20:00 WIB</p>
+        ) : tugas.length === 0 ? (
+          <div className="bg-white p-10 rounded-3xl text-center border border-gray-100 shadow-inner">
+            <p className="text-gray-400 font-medium">Belum ada data tugas untuk hari {hariIni}.</p>
           </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-gray-50 p-4 rounded-2xl">
-            <div className="flex items-center gap-2 text-gray-400 mb-1">
-              <User className="w-3 h-3" />
-              <span className="text-[10px] font-bold uppercase">Petugas</span>
+        ) : (
+          tugas.map((item) => (
+            <div key={item.id} className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+              <div className="flex justify-between items-center mb-3">
+                <span className={`text-[10px] font-black px-2 py-1 rounded-lg ${item.role === 'CS' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
+                  {item.role}
+                </span>
+                <span className="text-xs font-bold text-gray-400">{item.jam}</span>
+              </div>
+              <p className="font-bold text-gray-800 text-lg mb-4">{item.tugas}</p>
+              <div className="flex gap-2">
+                <button className="flex-1 bg-gray-50 text-gray-600 font-bold py-3 rounded-2xl text-xs flex items-center justify-center gap-2 border border-gray-100 active:bg-emerald-50 active:text-emerald-600 active:border-emerald-200 transition-all">
+                  <CheckCircle2 className="w-4 h-4" /> Selesai
+                </button>
+                <button className="bg-blue-50 text-blue-600 p-3 rounded-2xl border border-blue-100">
+                  <Camera className="w-5 h-5" />
+                </button>
+              </div>
             </div>
-            <p className="text-sm font-bold text-gray-700">Bpk. Ahmad Sujarwo</p>
-          </div>
-          <div className="bg-gray-50 p-4 rounded-2xl">
-            <div className="flex items-center gap-2 text-gray-400 mb-1">
-              <Clock className="w-3 h-3" />
-              <span className="text-[10px] font-bold uppercase">Lokasi</span>
-            </div>
-            <p className="text-sm font-bold text-gray-700">Pos Gerbang Utama</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Bagian Aplose (Ganti Jaga) */}
-      <h3 className="font-black text-gray-800 mb-4 px-2">Lapor Ganti Jaga (Aplose)</h3>
-      <div className="bg-blue-600 rounded-3xl p-6 text-white shadow-xl shadow-blue-100">
-        <p className="text-sm opacity-90 mb-4">Pastikan Anda mengambil foto bersama petugas shift sebelumnya sebagai bukti aplose.</p>
-        
-        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-blue-400 rounded-2xl cursor-pointer hover:bg-blue-700 transition-all bg-blue-500/30">
-          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-            <Camera className="w-10 h-10 mb-2" />
-            <p className="text-sm font-bold">Ambil Foto Aplose</p>
-            <p className="text-[10px] opacity-60">Format: JPG, PNG (Maks 5MB)</p>
-          </div>
-          <input type="file" className="hidden" accept="image/*" capture="environment" />
-        </label>
-
-        <button className="w-full mt-4 bg-white text-blue-600 font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all">
-          KIRIM LAPORAN APLOSE
-        </button>
+          ))
+        )}
       </div>
     </main>
   );
