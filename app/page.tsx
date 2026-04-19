@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Shield, Paintbrush, Calendar } from "lucide-react"; // 'Broom' diganti jadi 'Paintbrush'
+import { Shield, Paintbrush, Calendar, Users, Activity } from "lucide-react";
 
 export default function Dashboard() {
   const [hariIni, setHariIni] = useState("");
@@ -11,56 +11,97 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <main className="p-6 max-w-md mx-auto">
-      <header className="mb-8">
-        <h1 className="text-2xl font-black text-gray-900">PIRU Dashboard</h1>
-        <div className="flex items-center gap-2 text-gray-500 font-medium">
-          <Calendar className="w-4 h-4" />
-          <span>{hariIni}, {new Date().toLocaleDateString('id-ID')}</span>
+    <div className="w-full">
+      {/* Header Dashboard yang Luas */}
+      <header className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Overview Dashboard</h1>
+          <p className="text-slate-500 font-bold mt-1">Selamat Datang di Sistem PIRU Management</p>
+        </div>
+        <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-2xl shadow-sm border border-slate-200">
+          <Calendar className="w-5 h-5 text-blue-600" />
+          <span className="font-black text-slate-700">{hariIni}, {new Date().toLocaleDateString('id-ID')}</span>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 gap-4">
-        {/* Ringkasan Status */}
-        <div className="bg-blue-600 p-6 rounded-3xl text-white shadow-xl shadow-blue-200">
-          <p className="opacity-80 text-sm font-bold uppercase tracking-wider">Status Kerja</p>
-          <h2 className="text-3xl font-black mt-1">Sangat Baik</h2>
-          <div className="mt-4 flex gap-4">
-            <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md">
-              <p className="text-[10px] font-bold">CS Selesai</p>
-              <p className="text-xl font-black">85%</p>
-            </div>
-            <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md">
-              <p className="text-[10px] font-bold">Satpam</p>
-              <p className="text-xl font-black">100%</p>
+      {/* Baris Statistik / Ringkasan Utama */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div className="bg-blue-600 p-8 rounded-[32px] text-white shadow-xl shadow-blue-200 flex flex-col justify-between min-h-[200px]">
+          <div>
+            <p className="text-xs font-black uppercase tracking-widest opacity-80">Status Operasional</p>
+            <h2 className="text-4xl font-black mt-2">Sangat Baik</h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <Activity className="w-5 h-5" />
+            <span className="text-sm font-bold">Semua sistem berjalan normal</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-8 rounded-[32px] border border-slate-200 shadow-sm flex flex-col justify-between">
+          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Penyelesaian CS</p>
+          <div>
+            <span className="text-5xl font-black text-slate-900">85%</span>
+            <div className="w-full bg-slate-100 h-2 rounded-full mt-4 overflow-hidden">
+              <div className="bg-emerald-500 h-full w-[85%]"></div>
             </div>
           </div>
         </div>
 
-        <h3 className="font-black text-gray-800 mt-4">Menu Cepat</h3>
-        
-        {/* Menu Satpam */}
-        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-          <div className="bg-orange-100 p-3 rounded-xl text-orange-600">
-            <Shield className="w-6 h-6" />
-          </div>
+        <div className="bg-white p-8 rounded-[32px] border border-slate-200 shadow-sm flex flex-col justify-between">
+          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Kehadiran Satpam</p>
           <div>
-            <h4 className="font-bold text-gray-800">Jadwal & Aplose</h4>
-            <p className="text-xs text-gray-500">Update ganti jaga satpam</p>
-          </div>
-        </div>
-
-        {/* Menu CS */}
-        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-          <div className="bg-emerald-100 p-3 rounded-xl text-emerald-600">
-            <Paintbrush className="w-6 h-6" />
-          </div>
-          <div>
-            <h4 className="font-bold text-gray-800">E-List Pekerjaan</h4>
-            <p className="text-xs text-gray-500">Checklist tugas harian CS</p>
+            <span className="text-5xl font-black text-slate-900">100%</span>
+            <p className="text-sm font-bold text-emerald-600 mt-2">Lengkap & Aktif</p>
           </div>
         </div>
       </div>
-    </main>
+
+      {/* Bagian Menu Cepat dengan Grid yang lebih Profesional */}
+      <h3 className="text-xl font-black text-slate-900 mb-6">Akses Cepat Layanan</h3>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Card Satpam */}
+        <div className="group bg-white p-6 rounded-[28px] border border-slate-200 shadow-sm hover:border-blue-500 hover:shadow-md transition-all cursor-pointer">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-4">
+              <div className="bg-orange-100 p-4 rounded-2xl text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                <Shield className="w-7 h-7" />
+              </div>
+              <div>
+                <h4 className="text-lg font-black text-slate-800">Jadwal & Aplose</h4>
+                <p className="text-sm text-slate-500 font-medium">Laporan ganti jaga & serah terima</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card CS */}
+        <div className="group bg-white p-6 rounded-[28px] border border-slate-200 shadow-sm hover:border-blue-500 hover:shadow-md transition-all cursor-pointer">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-4">
+              <div className="bg-emerald-100 p-4 rounded-2xl text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                <Paintbrush className="w-7 h-7" />
+              </div>
+              <div>
+                <h4 className="text-lg font-black text-slate-800">E-List Pekerjaan</h4>
+                <p className="text-sm text-slate-500 font-medium">Checklist tugas harian petugas</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card Settings */}
+        <div className="group bg-white p-6 rounded-[28px] border border-slate-200 shadow-sm hover:border-blue-500 hover:shadow-md transition-all cursor-pointer lg:col-span-2">
+          <div className="flex items-center gap-4">
+            <div className="bg-slate-100 p-4 rounded-2xl text-slate-600 group-hover:bg-slate-800 group-hover:text-white transition-colors">
+              <Users className="w-7 h-7" />
+            </div>
+            <div>
+              <h4 className="text-lg font-black text-slate-800">Manajemen Petugas</h4>
+              <p className="text-sm text-slate-500 font-medium">Pengaturan nama, pengawas, dan pembagian role system</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
